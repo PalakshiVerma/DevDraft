@@ -15,7 +15,6 @@ An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and tr
 2. **Pull Request Description** — structured into `Title`, `Summary`, `Why`, `Changes`, `How to test`, and a `Checklist`.
 3. **Analyze** — a free-form mode that extracts insights, risks, and action items from any blob of developer notes.
 
-
 ## 🛠️ Architecture
 
 ```
