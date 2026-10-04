@@ -1,53 +1,54 @@
-# 🚀 The Standup & PR Polish Agent
+# DevDraft: The Standup & PR Polish Agent
 
-> Turn raw, messy developer notes into crisp, confident daily standups and high-impact Pull Request descriptions in seconds — powered by open-weight LLMs.
+[![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-blueviolet.svg)](https://hacktoberfest.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Built with FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
-[![Powered by Llama](https://img.shields.io/badge/Llama%203.1-open--weight-blueviolet?style=flat&logo=meta)](https://groq.com)
-[![OpenAI-compatible](https://img.shields.io/badge/OpenAI--compatible-API-412991?style=flat&logo=openai)](https://platform.openai.com/docs/api-reference)
+**Turn raw, messy developer notes into crisp, confident daily standups and high-impact Pull Request descriptions in seconds — powered by open-weight LLMs.**
+
+**Live Demo:** [https://devdraft.onrender.com/](https://devdraft.onrender.com/)
 
 ---
 
-## Backend Live Link - https://prmaster.onrender.com/
+## The Problem
 
-## 💡 The Problem
+Interns and junior developers often experience imposter syndrome when communicating in professional engineering channels. Drafting a daily standup update or a GitHub Pull Request description can take 30–45 minutes. The primary bottleneck is not the engineering work itself, but the anxiety associated with achieving the appropriate tone, structure, and technical phrasing.
 
-Interns and junior developers often suffer from imposter syndrome when communicating in professional engineering channels. Drafting a daily standup or a GitHub PR description can take 30–45 minutes — not because the work is hard, but because getting the tone and structure right causes anxiety.
+## The Solution
 
-## ✨ The Solution
+DevDraft serves as an AI-powered partner designed to function like an experienced senior developer. It accepts raw, unstructured notes and transforms them into clear, professional, and ready-to-publish updates.
 
-An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and transforms them into:
+* **Daily Standup:** Converts unstructured notes into *Completed*, *Planned*, and *Blockers / Risks* sections using confident, objective language.
+* **Pull Request Description:** Formats code summaries and informal notes into a standardized PR template: *Title*, *Summary*, *Why*, *Changes*, *How to Test*, and a *Checklist*.
+* **Analyze Mode:** A free-form utility that extracts key insights, technical risks, and action items from any unformatted block of developer notes.
 
-1. **Daily Standup** — structured into `Completed`, `Planned`, and `Blockers / Risks` with confident, non-apologetic phrasing.
-2. **Pull Request Description** — structured into `Title`, `Summary`, `Why`, `Changes`, `How to test`, and a `Checklist`.
-3. **Analyze** — a free-form mode that extracts insights, risks, and action items from any blob of developer notes.
+---
 
-## 🛠️ Architecture
+## Architecture
 
-```
+```text
 hactoberP1/
 ├── backend/                  # FastAPI REST service
 │   ├── app/
-│   │   ├── main.py          # CORS, health check & /api/polish
-│   │   ├── schemas.py       # Pydantic request / response models
-│   │   ├── prompts.py       # System prompts for each mode
-│   │   └── services.py      # OpenAI-compatible async LLM client
-│   ├── test_main.py         # Pytest async test suite
-│   ├── Procfile             # Render deployment entry point
+│   │   ├── main.py           # CORS, health check & /api/polish
+│   │   ├── schemas.py        # Pydantic request / response models
+│   │   ├── prompts.py        # System prompts for each mode
+│   │   └── services.py       # OpenAI-compatible async LLM client
+│   ├── test_main.py          # Pytest async test suite
+│   ├── Procfile              # Render deployment entry point
 │   └── requirements.txt
 ├── frontend/                 # Streamlit web UI
-│   ├── app.py               # Reactive UI with tabs & diff view
-│   ├── api_client.py        # HTTP client for the FastAPI backend
-│   ├── styles.py            # Custom CSS
+│   ├── app.py                # Reactive UI with tabs & diff view
+│   ├── api_client.py         # HTTP client for the FastAPI backend
+│   ├── styles.py             # Custom CSS
 │   └── requirements.txt
-├── PLANNER.md               # Master phase planner
+├── PLANNER.md                # Master phase planner
 └── README.md
-```
 
+
+
+```
 ### Data flow
 
-```
 User → Streamlit → POST /api/polish → AsyncOpenAI client
      ← polished_text ←────────────── Groq / OpenRouter / Ollama
 ```
@@ -146,53 +147,6 @@ LLM_MODEL=llama3.1
 
 ---
 
-## 🌐 Deployment
-
-### Backend → Render (free tier)
-
-1. Push the repo to GitHub.
-2. Create a new **Web Service** on [render.com](https://render.com), point it at your repo.
-3. Set **Root Directory** to `backend`.
-4. Render auto-detects the `Procfile`:
-   ```
-   web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-   ```
-5. Add environment variables in the Render dashboard:
-   - `LLM_API_KEY` — your Groq key
-   - `LLM_BASE_URL` — `https://api.groq.com/openai/v1`
-   - `LLM_MODEL` — `llama-3.1-8b-instant`
-
-> **⚠️ Free tier cold start:** Render spins down free services after ~15 minutes of inactivity. The first request after idle may take 30–60 seconds to respond while the container wakes up. Subsequent requests are fast.
-
-### Frontend → Streamlit Community Cloud
-
-1. Go to [share.streamlit.io](https://share.streamlit.io) and connect your GitHub repo.
-2. Set **Main file path** to `frontend/app.py`.
-3. Add a secret in the app settings:
-   ```
-   BACKEND_API_URL=https://your-render-service.onrender.com
-   ```
-4. Deploy — Streamlit Community Cloud handles the rest.
-
----
-
-## 🧪 Running Tests
-
-```bash
-cd backend
-pytest test_main.py -v
-```
-
----
-
-## 📁 .env files
-
-Neither `.env` file is committed (both are in `.gitignore`). Use the provided `.env.example` files as templates:
-
-- `backend/.env.example` — LLM provider config
-- `frontend/.env.example` — backend URL for the Streamlit client
-
----
 
 ## 📄 License
 
