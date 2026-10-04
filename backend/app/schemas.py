@@ -28,12 +28,12 @@ class PolishResponse(BaseModel):
     )
     task_type: TaskType
     model_used: str = Field(
-        default="gemini-2.5-flash",
-        description="The Gemini model used for inference"
+        ...,
+        description="The actual LLM model used for inference (set from LLM_MODEL env var)"
     )
 
 
 class HealthResponse(BaseModel):
     status: str
-    gemini_configured: bool
+    llm_configured: bool
     version: str = "1.0.0"

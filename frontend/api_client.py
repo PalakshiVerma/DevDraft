@@ -9,15 +9,15 @@ DEFAULT_BACKEND_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000")
 
 
 def check_backend_health(base_url: str = DEFAULT_BACKEND_URL) -> Tuple[bool, Optional[str]]:
-    """Check if the FastAPI backend is reachable and configured."""
+    """Check if the FastAPI backend is reachable and LLM API key is configured."""
     try:
         url = f"{base_url.rstrip('/')}/health"
         with httpx.Client(timeout=3.0) as client:
             resp = client.get(url)
             if resp.status_code == 200:
                 data = resp.json()
-                if not data.get("gemini_configured", False):
-                    return False, "Backend reachable, but GEMINI_API_KEY is not set."
+                if not data.get("llm_configured", False):
+                    return False, "Backend reachable, but LLM_API_KEY is not set."
                 return True, "Backend online and ready."
             return False, f"Backend returned status {resp.status_code}"
     except httpx.ConnectError:
@@ -38,7 +38,7 @@ def call_polish_api(
         "task_type": task_type,
     }
     try:
-        with httpx.Client(timeout=30.0) as client:
+        with httpx.Client(timeout=60.0) as client:
             resp = client.post(url, json=payload)
             if resp.status_code == 200:
                 return resp.json(), None
@@ -48,6 +48,6 @@ def call_polish_api(
     except httpx.ConnectError:
         return None, f"Connection failed to {base_url}. Please ensure the FastAPI backend is running."
     except httpx.TimeoutException:
-        return None, "Request timed out while waiting for Gemini response."
+        return None, "Request timed out while waiting for the LLM response."
     except Exception as e:
         return None, f"Unexpected error: {str(e)}"
