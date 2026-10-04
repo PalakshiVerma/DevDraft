@@ -1,3 +1,4 @@
+import logging
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
@@ -9,16 +10,22 @@ load_dotenv()
 from app.schemas import PolishRequest, PolishResponse, HealthResponse
 from app.services import polish_service
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title="Standup & PR Polish API",
-    description="Backend service powered by Google Gemini (gemini-2.5-flash) to convert raw developer notes into professional updates.",
-    version="1.0.0",
+    description=(
+        "Backend service powered by open-weight LLMs (default: Llama 3.1 via Groq) "
+        "to convert raw developer notes into professional standup or PR updates. "
+        "Provider is fully configurable via LLM_BASE_URL / LLM_API_KEY / LLM_MODEL env vars."
+    ),
+    version="2.0.0",
 )
 
-# CORS configuration to allow local & deployed Streamlit frontends
+# CORS — allow all origins for development and cloud (Streamlit Community Cloud)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins for development and cloud deployments
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,11 +34,11 @@ app.add_middleware(
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check():
-    """Health check endpoint to verify server status and Gemini API key configuration."""
+    """Health check: returns server status and whether an LLM API key is configured."""
     return HealthResponse(
         status="healthy",
-        gemini_configured=polish_service.is_configured(),
-        version="1.0.0",
+        llm_configured=polish_service.is_configured(),
+        version="2.0.0",
     )
 
 
@@ -43,12 +50,13 @@ async def health_check():
 )
 async def polish_update_endpoint(request: PolishRequest):
     """
-    Transforms raw, informal developer notes into a crisp, confident Standup or Pull Request update.
+    Transforms raw, informal developer notes into a crisp, confident
+    Standup or Pull Request update using an open-weight LLM.
     """
     if not polish_service.is_configured():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="GEMINI_API_KEY is not configured on the server. Please set it in .env file.",
+            detail="LLM_API_KEY is not configured on the server. Please set it in .env file.",
         )
 
     try:
@@ -58,19 +66,17 @@ async def polish_update_endpoint(request: PolishRequest):
         )
         return response
     except ValueError as ve:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(ve),
-        )
+        # Non-retryable client error (e.g., bad model name, 400/401/403)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
     except RuntimeError as re:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=str(re),
-        )
-    except Exception as e:
+        # Upstream LLM failure after retries
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(re))
+    except Exception:
+        # Unexpected errors — log server-side, do NOT expose internals to client
+        logger.exception("Unexpected error in /api/polish")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}",
+            detail="An unexpected internal server error occurred.",
         )
 
 
