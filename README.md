@@ -21,16 +21,6 @@ An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and tr
 2. **Pull Request Description** — structured into `Title`, `Summary`, `Why`, `Changes`, `How to test`, and a `Checklist`.
 3. **Analyze** — a free-form mode that extracts insights, risks, and action items from any blob of developer notes.
 
----
-
-## 🔓 Why Open Models?
-
-- **Swap models with one env var.** Point `LLM_MODEL` at any model on Groq, OpenRouter, Hugging Face, or your local Ollama — no code changes.
-- **Runs fully local.** Set `LLM_BASE_URL=http://localhost:11434/v1` and your notes never leave your machine.
-- **No vendor lock-in.** The backend speaks the OpenAI-compatible chat completions API, which every major open-model provider supports.
-
----
-
 ## 🛠️ Architecture
 
 ```
