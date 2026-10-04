@@ -6,30 +6,15 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![Powered by Llama](https://img.shields.io/badge/Llama%203.1-open--weight-blueviolet?style=flat&logo=meta)](https://groq.com)
 [![OpenAI-compatible](https://img.shields.io/badge/OpenAI--compatible-API-412991?style=flat&logo=openai)](https://platform.openai.com/docs/api-reference)
+[![Backend on Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render)](https://prmaster.onrender.com)
 
----
-
-## 💡 The Problem
-
-Interns and junior developers often suffer from imposter syndrome when communicating in professional engineering channels. Drafting a daily standup or a GitHub PR description can take 30–45 minutes — not because the work is hard, but because getting the tone and structure right causes anxiety.
-
-## ✨ The Solution
-
+🔗 **Live Backend API:** [https://prmaster.onrender.com](https://prmaster.onrender.com) · [Swagger docs](https://prmaster.onrender.com/docs)
 An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and transforms them into:
 
 1. **Daily Standup** — structured into `Completed`, `Planned`, and `Blockers / Risks` with confident, non-apologetic phrasing.
 2. **Pull Request Description** — structured into `Title`, `Summary`, `Why`, `Changes`, `How to test`, and a `Checklist`.
 3. **Analyze** — a free-form mode that extracts insights, risks, and action items from any blob of developer notes.
 
----
-
-## 🔓 Why Open Models?
-
-- **Swap models with one env var.** Point `LLM_MODEL` at any model on Groq, OpenRouter, Hugging Face, or your local Ollama — no code changes.
-- **Runs fully local.** Set `LLM_BASE_URL=http://localhost:11434/v1` and your notes never leave your machine.
-- **No vendor lock-in.** The backend speaks the OpenAI-compatible chat completions API, which every major open-model provider supports.
-
----
 
 ## 🛠️ Architecture
 
@@ -172,15 +157,22 @@ LLM_MODEL=llama3.1
 
 > **⚠️ Free tier cold start:** Render spins down free services after ~15 minutes of inactivity. The first request after idle may take 30–60 seconds to respond while the container wakes up. Subsequent requests are fast.
 
-### Frontend → Streamlit Community Cloud
+### Frontend → Render (free tier)
 
-1. Go to [share.streamlit.io](https://share.streamlit.io) and connect your GitHub repo.
-2. Set **Main file path** to `frontend/app.py`.
-3. Add a secret in the app settings:
+1. Create a second **Web Service** on [render.com](https://render.com), same repo.
+2. Set **Root Directory** to `frontend`.
+3. Render picks up `frontend/Procfile` automatically:
    ```
-   BACKEND_API_URL=https://your-render-service.onrender.com
+   web: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
    ```
-4. Deploy — Streamlit Community Cloud handles the rest.
+4. Set **Build Command** to `pip install -r requirements.txt`.
+5. Add one environment variable in the Render dashboard:
+
+   | Key | Value |
+   |---|---|
+   | `BACKEND_API_URL` | `https://prmaster.onrender.com` |
+
+6. Deploy — you'll get a public URL like `https://your-frontend.onrender.com`.
 
 ---
 
