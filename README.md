@@ -1,6 +1,7 @@
-# 🚀 The Standup & PR Polish Agent
+# DevDraft: The Standup & PR Polish Agent
 
-> Turn raw, messy developer notes into crisp, confident daily standups and high-impact Pull Request descriptions in seconds — powered by open-weight LLMs.
+[![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-blueviolet.svg)](https://hacktoberfest.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![Built with FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
@@ -11,35 +12,34 @@
 🔗 **Live Backend API:** [https://prmaster.onrender.com](https://prmaster.onrender.com) · [Swagger docs](https://prmaster.onrender.com/docs)
 An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and transforms them into:
 
-1. **Daily Standup** — structured into `Completed`, `Planned`, and `Blockers / Risks` with confident, non-apologetic phrasing.
-2. **Pull Request Description** — structured into `Title`, `Summary`, `Why`, `Changes`, `How to test`, and a `Checklist`.
-3. **Analyze** — a free-form mode that extracts insights, risks, and action items from any blob of developer notes.
+---
 
-## 🛠️ Architecture
+## Architecture
 
-```
+```text
 hactoberP1/
 ├── backend/                  # FastAPI REST service
 │   ├── app/
-│   │   ├── main.py          # CORS, health check & /api/polish
-│   │   ├── schemas.py       # Pydantic request / response models
-│   │   ├── prompts.py       # System prompts for each mode
-│   │   └── services.py      # OpenAI-compatible async LLM client
-│   ├── test_main.py         # Pytest async test suite
-│   ├── Procfile             # Render deployment entry point
+│   │   ├── main.py           # CORS, health check & /api/polish
+│   │   ├── schemas.py        # Pydantic request / response models
+│   │   ├── prompts.py        # System prompts for each mode
+│   │   └── services.py       # OpenAI-compatible async LLM client
+│   ├── test_main.py          # Pytest async test suite
+│   ├── Procfile              # Render deployment entry point
 │   └── requirements.txt
 ├── frontend/                 # Streamlit web UI
-│   ├── app.py               # Reactive UI with tabs & diff view
-│   ├── api_client.py        # HTTP client for the FastAPI backend
-│   ├── styles.py            # Custom CSS
+│   ├── app.py                # Reactive UI with tabs & diff view
+│   ├── api_client.py         # HTTP client for the FastAPI backend
+│   ├── styles.py             # Custom CSS
 │   └── requirements.txt
-├── PLANNER.md               # Master phase planner
+├── PLANNER.md                # Master phase planner
 └── README.md
-```
 
+
+
+```
 ### Data flow
 
-```
 User → Streamlit → POST /api/polish → AsyncOpenAI client
      ← polished_text ←────────────── Groq / OpenRouter / Ollama
 ```
