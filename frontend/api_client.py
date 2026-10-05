@@ -38,12 +38,15 @@ def call_polish_api(
         "task_type": task_type,
     }
     try:
-        with httpx.Client(timeout=60.0) as client:
+        with httpx.Client(timeout=90.0) as client:
             resp = client.post(url, json=payload)
             if resp.status_code == 200:
                 return resp.json(), None
             else:
-                detail = resp.json().get("detail", resp.text)
+                try:
+                    detail = resp.json().get("detail", resp.text)
+                except Exception:
+                    detail = resp.text or f"Backend returned status {resp.status_code}"
                 return None, f"Error ({resp.status_code}): {detail}"
     except httpx.ConnectError:
         return None, f"Connection failed to {base_url}. Please ensure the FastAPI backend is running."

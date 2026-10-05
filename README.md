@@ -3,23 +3,14 @@
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-blueviolet.svg)](https://hacktoberfest.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Turn raw, messy developer notes into crisp, confident daily standups and high-impact Pull Request descriptions in seconds — powered by open-weight LLMs.**
+[![Built with FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Powered by Llama](https://img.shields.io/badge/Llama%203.1-open--weight-blueviolet?style=flat&logo=meta)](https://groq.com)
+[![OpenAI-compatible](https://img.shields.io/badge/OpenAI--compatible-API-412991?style=flat&logo=openai)](https://platform.openai.com/docs/api-reference)
+[![Backend on Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render)](https://prmaster.onrender.com)
 
-**Live Demo:** [https://devdraft.onrender.com/](https://devdraft.onrender.com/)
-
----
-
-## The Problem
-
-Interns and junior developers often experience imposter syndrome when communicating in professional engineering channels. Drafting a daily standup update or a GitHub Pull Request description can take 30–45 minutes. The primary bottleneck is not the engineering work itself, but the anxiety associated with achieving the appropriate tone, structure, and technical phrasing.
-
-## The Solution
-
-DevDraft serves as an AI-powered partner designed to function like an experienced senior developer. It accepts raw, unstructured notes and transforms them into clear, professional, and ready-to-publish updates.
-
-* **Daily Standup:** Converts unstructured notes into *Completed*, *Planned*, and *Blockers / Risks* sections using confident, objective language.
-* **Pull Request Description:** Formats code summaries and informal notes into a standardized PR template: *Title*, *Summary*, *Why*, *Changes*, *How to Test*, and a *Checklist*.
-* **Analyze Mode:** A free-form utility that extracts key insights, technical risks, and action items from any unformatted block of developer notes.
+🔗 **Live Backend API:** [https://prmaster.onrender.com](https://prmaster.onrender.com) · [Swagger docs](https://prmaster.onrender.com/docs)
+An AI-powered "Senior Developer" partner that takes raw, unfiltered notes and transforms them into:
 
 ---
 
@@ -147,6 +138,60 @@ LLM_MODEL=llama3.1
 
 ---
 
+## 🌐 Deployment
+
+### Backend → Render (free tier)
+
+1. Push the repo to GitHub.
+2. Create a new **Web Service** on [render.com](https://render.com), point it at your repo.
+3. Set **Root Directory** to `backend`.
+4. Render auto-detects the `Procfile`:
+   ```
+   web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+   ```
+5. Add environment variables in the Render dashboard:
+   - `LLM_API_KEY` — your Groq key
+   - `LLM_BASE_URL` — `https://api.groq.com/openai/v1`
+   - `LLM_MODEL` — `llama-3.1-8b-instant`
+
+> **⚠️ Free tier cold start:** Render spins down free services after ~15 minutes of inactivity. The first request after idle may take 30–60 seconds to respond while the container wakes up. Subsequent requests are fast.
+
+### Frontend → Render (free tier)
+
+1. Create a second **Web Service** on [render.com](https://render.com), same repo.
+2. Set **Root Directory** to `frontend`.
+3. Render picks up `frontend/Procfile` automatically:
+   ```
+   web: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+   ```
+4. Set **Build Command** to `pip install -r requirements.txt`.
+5. Add one environment variable in the Render dashboard:
+
+   | Key | Value |
+   |---|---|
+   | `BACKEND_API_URL` | `https://prmaster.onrender.com` |
+
+6. Deploy — you'll get a public URL like `https://your-frontend.onrender.com`.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+cd backend
+pytest test_main.py -v
+```
+
+---
+
+## 📁 .env files
+
+Neither `.env` file is committed (both are in `.gitignore`). Use the provided `.env.example` files as templates:
+
+- `backend/.env.example` — LLM provider config
+- `frontend/.env.example` — backend URL for the Streamlit client
+
+---
 
 ## 📄 License
 
